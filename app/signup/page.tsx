@@ -3,33 +3,29 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setError('');
 
+    if (form.password !== form.confirm) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
       setLoading(true);
-
-      // Fake local authentication for now
+      // 🧠 In a real setup, this would POST to your Supabase or backend
+      // For now, we’ll simulate successful signup
       await new Promise((res) => setTimeout(res, 800));
 
-      // ✅ Basic fake auth: check hardcoded users
-      if (
-        (form.email === 'admin@nourishcare.com' && form.password === 'admin123') ||
-        (form.email === 'carer@nourishcare.com' && form.password === 'carer123')
-      ) {
-        localStorage.setItem('user', JSON.stringify({ email: form.email }));
-
-        router.push('/dashboard');
-      } else {
-        setError('Invalid email or password.');
-      }
+      // Redirect to login
+      router.push('/login');
     } catch (err) {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -40,12 +36,24 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8 border border-gray-100">
-        <h1 className="text-3xl font-bold text-sky-900 mb-2 text-center">Welcome Back</h1>
+        <h1 className="text-3xl font-bold text-sky-900 mb-2 text-center">Create Account</h1>
         <p className="text-gray-600 text-center mb-6">
-          Log in to continue managing care with <span className="font-semibold">NourishCare</span>.
+          Join NourishCare and simplify care coordination.
         </p>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSignup} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+            <input
+              type="text"
+              required
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="mt-1 w-full px-4 py-2 border rounded focus:ring-2 focus:ring-sky-500 outline-none"
+              placeholder="Jane Doe"
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
@@ -70,6 +78,18 @@ export default function LoginPage() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input
+              type="password"
+              required
+              value={form.confirm}
+              onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+              className="mt-1 w-full px-4 py-2 border rounded focus:ring-2 focus:ring-sky-500 outline-none"
+              placeholder="••••••••"
+            />
+          </div>
+
           {error && <p className="text-red-600 text-sm text-center">{error}</p>}
 
           <button
@@ -77,17 +97,17 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-sky-800 text-white py-2.5 rounded hover:bg-sky-700 transition font-semibold disabled:opacity-70"
           >
-            {loading ? 'Logging in...' : 'Log In'}
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
         <p className="text-sm text-gray-600 mt-4 text-center">
-          Don’t have an account?{' '}
+          Already have an account?{' '}
           <button
-            onClick={() => router.push('/signup')}
+            onClick={() => router.push('/login')}
             className="text-sky-700 hover:underline font-medium"
           >
-            Sign up
+            Log in
           </button>
         </p>
       </div>
